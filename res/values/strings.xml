@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Simple Time-Syncer over HTTP</string>
+    <string name="app_name">HTTPSync</string>
+<string name="button_text">Start Syncing</string>
+<string name="local_service_started">Ye be started, mr. Local</string>
+</resources>
