@@ -12,7 +12,6 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -36,7 +35,7 @@ public class syncService extends Service  {
 //	private HttpClient httpclient = null;
 //    private ResponseHandler<String> stringResponseHandler = null;
 
-	private Intent broadcast = new Intent(BROADCAST_ACTION);
+//	private Intent broadcast = new Intent(BROADCAST_ACTION);
 	
 	private final Binder binder = new LocalBinder();
 
@@ -59,7 +58,7 @@ public class syncService extends Service  {
 	@Override
 	public void onCreate() {
 		
-		Log.i(TAG, "onCreate");
+		Log.i(TAG, "onCreate called");
 		showNotification();
 		
 //        params = new BasicHttpParams();
@@ -74,18 +73,18 @@ public class syncService extends Service  {
 	
 
 
-	@Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "Received start id " + startId + ": " + intent);
-        // continue running until it is explicitly stopped, so return sticky.
-        return START_STICKY;
-    }
+//	@Override
+//    public int onStartCommand(Intent intent, int flags, int startId) {
+//        Log.i(TAG, "Received start id " + startId + ": " + intent);
+//        // continue running until it is explicitly stopped, so return sticky.
+//        return START_STICKY;
+//    }
 
 	
 	@Override
 	public void onDestroy() {
+		Log.i(TAG, "onDestroy called");
 		mStopSyncing = true;
-		
 		db.close();
 		
 //		bgTask.cancel(true);
@@ -141,13 +140,16 @@ public class syncService extends Service  {
 				Log.i(TAG, "Time Difference:  " + timeDifference);
 				
 				
-				ContentValues cv = new ContentValues(2);
+				ContentValues cv = new ContentValues(3);
 				cv.put("ts", myTime);
 				cv.put("offset", timeDifference);
+				cv.put("rtt", RTT);
 				db.insert(DB_TABLENAME, "ts", cv);
 				
 				backoff = 500; 
 				
+				// TODO: smarter exception-handling, 
+				// e.g. backoff only for http-errors, ...
     		} catch (Exception e) {
     			Log.e(TAG, "Doh! " + e.toString());
     			
@@ -164,7 +166,7 @@ public class syncService extends Service  {
     		}
     	}
     };
-
+    
     /*
     private class syncTask extends AsyncTask<Void, Integer, Void> {
     	
@@ -247,9 +249,9 @@ public class syncService extends Service  {
         params.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
         
         HttpClient httpclient = new DefaultHttpClient(params);
-        HttpGet request = new HttpGet("http://192.168.1.137:8080/time");
+//        HttpGet request = new HttpGet("http://192.168.1.137:8081/time");
 //        HttpGet request = new HttpGet("http://pableu.dyndns.org:8080/time");
-//        HttpGet request = new HttpGet("http://129.132.131.73:8080/time");
+        HttpGet request = new HttpGet("http://129.132.131.73:8081/time");
 
         long roundTripTime = 0;
 

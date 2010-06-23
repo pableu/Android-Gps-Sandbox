@@ -4,4 +4,7 @@
     <string name="app_name">HTTPSync</string>
 <string name="button_text">Start Syncing</string>
 <string name="local_service_started">Ye be started, mr. Local</string>
+<string name="show_sql">Count Rows</string>
+<string name="empty">i am empty</string>
+<string name="dump_sql">Dump</string>
 </resources>
