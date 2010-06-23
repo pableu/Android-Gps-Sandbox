@@ -7,4 +7,5 @@
 <string name="show_sql">Count Rows</string>
 <string name="empty">i am empty</string>
 <string name="dump_sql">Dump</string>
+<string name="delete_sql">Clear</string>
 </resources>

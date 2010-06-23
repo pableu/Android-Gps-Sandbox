@@ -105,7 +105,6 @@ public class syncService extends Service  {
     
     private Runnable syncThread = new Runnable() {
     	
-    	
     	private static final int DEFAULT_BACKOFF = 500;   // 0.5 seconds
     	private static final int MAX_BACKOFF =     60000; // a minute
     	
@@ -201,6 +200,6 @@ public class syncService extends Service  {
         	Log.w(TAG, e.toString());
         }
 		return null;
-    } 
-	
+    }
+    
 }

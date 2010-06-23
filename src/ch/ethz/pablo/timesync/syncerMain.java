@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.FileWriter;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
@@ -34,6 +36,7 @@ public class syncerMain extends Activity implements OnClickListener {
 	private Button pushButton;
 	private Button dataButton;
 	private Button dumpButton;
+	private Button truncateButton;
 
 	private syncService boundService = null;
 	
@@ -54,6 +57,9 @@ public class syncerMain extends Activity implements OnClickListener {
         
         dumpButton = (Button) findViewById(R.id.dump_button);
         dumpButton.setOnClickListener(this);
+        
+        truncateButton = (Button) findViewById(R.id.truncate_button);
+        truncateButton.setOnClickListener(this);
     }
     
     @Override
@@ -124,9 +130,27 @@ public class syncerMain extends Activity implements OnClickListener {
 			countCursor.close();
 		}
 		
-		if (v == dumpButton) {
-			
+		if (v == dumpButton) {			
 			new dumpCSV().execute(); // call to the AsyncTask
+		}
+		
+		if (v == truncateButton) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage("Are you sure? This will delete all the TimeSync-records from SQLite.")
+			       .setCancelable(false)
+			       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			           public void onClick(DialogInterface dialog, int id) {
+			        	   db.execSQL("DELETE FROM sync_results;");
+			        	   Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_SHORT).show();
+			           }
+			       })
+			       .setNegativeButton("No", new DialogInterface.OnClickListener() {
+			           public void onClick(DialogInterface dialog, int id) {
+			                dialog.cancel();
+			           }
+			       });
+			AlertDialog alert = builder.create();
+			alert.show();
 		}
 			
 	}
