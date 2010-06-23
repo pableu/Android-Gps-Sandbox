@@ -36,7 +36,8 @@ public class syncService extends Service  {
 	private static final String TAG = "HttpSyncService";
 	private static final String DB_TABLENAME = "sync_results";
 	
-
+	private static final long GPS_TIMESTEP = 10000; // milliseconds
+	private static final float GPS_DISTANCESTEP = 10;
 	private LocationManager mLocationManager;
 	
 	private final Binder binder = new LocalBinder();
@@ -64,7 +65,7 @@ public class syncService extends Service  {
 		
 		showNotification();
 
-	    mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, mMinTime, mMinDistance, mLocationListener, Looper.getMainLooper() );
+	    mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_TIMESTEP, GPS_DISTANCESTEP, mLocationListener, Looper.getMainLooper() );
 
 		
 		
@@ -84,6 +85,7 @@ public class syncService extends Service  {
 	public void onDestroy() {
 		Log.i(TAG, "onDestroy called");
 		mStopSyncing = true;
+		mLocationManager.removeUpdates(mLocationListener);
 		db.close();
 	}
 	
@@ -228,17 +230,17 @@ public class syncService extends Service  {
 
 		@Override
 		public void onProviderDisabled(String provider) {
-			// TODO Auto-generated method stub
+			Log.i(TAG, "GPS Provider disabled: " + provider);
 		}
 
 		@Override
 		public void onProviderEnabled(String provider) {
-			// TODO Auto-generated method stub
+			Log.i(TAG, "GPS Provider enabled: " + provider);
 		}
 
 		@Override
 		public void onStatusChanged(String provider, int status, Bundle extras) {
-			// TODO Auto-generated method stub
+			Log.i(TAG, "GPS Status changed " + provider + ", " + status);
 		}
     };
     
