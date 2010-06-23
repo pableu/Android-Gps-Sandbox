@@ -122,7 +122,7 @@ public class syncService extends Service  {
 				long serverTime = syncResult[1] + RTT/2;
 				long myTime = syncResult[2];
 				
-				timeDifference = serverTime-myTime;
+				timeDifference = serverTime - myTime;
 				
 				Log.i(TAG, "Sync finished! RTT: " +syncResult[0]);
 				Log.i(TAG, "Server: " + serverTime + " (raw: " + syncResult[1] + ")");
@@ -171,33 +171,42 @@ public class syncService extends Service  {
 
         long phoneTime = 0;
         long serverTime = 0;
+        long ms_before = 0; 
+        long ms_after = 0;
+        
+        String stringResponse;
         
         try {
 	        // handler that gets string from response
 	        ResponseHandler<String> stringResponseHandler = new BasicResponseHandler();
 	        
-	    	// get start time
-	        long ms_before = SystemClock.uptimeMillis();
-	        
-	        // Execute HTTP Get Request
-	        String stringResponse = httpclient.execute(request, stringResponseHandler);
-	
-	        // get current timestamp of the phone...
-	        phoneTime = System.currentTimeMillis();
-	        
-	        // get end-time, calculate RTT
-	        long ms_after = SystemClock.uptimeMillis();
+	        // to the time measurements in a synchronized block
+	        // this way, nobody can interrupt us
+	        synchronized (this) {
+		    	// get start time
+		        ms_before = SystemClock.elapsedRealtime();
+		        
+		        // Execute HTTP Get Request
+		        stringResponse = httpclient.execute(request, stringResponseHandler);
+		
+		        // get current timestamp of the phone...
+//		        phoneTime = System.currentTimeMillis();
+		       //TODO: remove the phoneTime = ms_after; statement a few lines further below
+		        
+		        // get end-time, calculate RTT
+		        ms_after = SystemClock.elapsedRealtime();
+	        }
 	        roundTripTime = ms_after - ms_before;
 	        
-	    	serverTime = Long.parseLong(stringResponse);
+	        phoneTime = ms_after; // cheap hack to not use System.currentTimeMillis();
+	        
+	    	serverTime = Long.parseLong(stringResponse); // get the server-timestamp out of the http-response
 	        
 	        return new Long[] {roundTripTime, serverTime, phoneTime};
         } catch (IOException e) {
         	Log.w(TAG,e.toString());
         } catch (NumberFormatException e) {
         	Log.e(TAG, "Number Format Exception when parsing server Response: " + e.getMessage());
-        } catch (Exception e) {
-        	Log.w(TAG, e.toString());
         }
 		return null;
     }
