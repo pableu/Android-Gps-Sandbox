@@ -31,15 +31,8 @@ public class syncService extends Service  {
 	private static final String TAG = "HttpSyncService";
 	private static final String DB_TABLENAME = "sync_results";
 	
-//	private HttpParams params = null;
-//	private HttpClient httpclient = null;
-//    private ResponseHandler<String> stringResponseHandler = null;
-
-//	private Intent broadcast = new Intent(BROADCAST_ACTION);
 	
 	private final Binder binder = new LocalBinder();
-
-//    private syncTask bgTask = null;
 
 	private boolean mStopSyncing = false;
 	
@@ -86,8 +79,6 @@ public class syncService extends Service  {
 		Log.i(TAG, "onDestroy called");
 		mStopSyncing = true;
 		db.close();
-		
-//		bgTask.cancel(true);
 	}
 	
 	
@@ -165,83 +156,7 @@ public class syncService extends Service  {
     			Log.i(TAG, "Stop Syncing");
     		}
     	}
-    };
-    
-    /*
-    private class syncTask extends AsyncTask<Void, Integer, Void> {
-    	
-    	private int  num_runs = 0;
-    	private long RTT;
-    	private long timeDifference;
-    	
-		@Override
-		protected Void doInBackground(Void... gurk) {
-			
-			while(!this.isCancelled()) {
-		        
-				Long[] syncResult = syncTime();
-				
-				RTT = syncResult[0];
-				long serverTime = syncResult[1] + RTT/2;
-				long myTime = syncResult[2];
-				
-				timeDifference = serverTime-myTime;
-				
-				Log.i(TAG, "Sync finished! RTT: " +syncResult[0]);
-				Log.i(TAG, "Server: " + serverTime + " (raw: " + syncResult[1] + ")");
-				Log.i(TAG, "Phone:  " + myTime);
-				Log.i(TAG, "Time Difference:  " + timeDifference);
-				
-		        num_runs++;
-		        
-		        try {
-					Thread.sleep(3000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		        
-				Log.i(TAG, "yay, i am inside asynctask doinbackground");
-//				Toast.makeText(getApplicationContext(),"looping!", Toast.LENGTH_LONG);
-				
-		        // publish to UI
-		        if(!this.isCancelled()) {
-//		        	publishProgress(num_runs);
-		        }
-		        if(!this.isCancelled()) {
-		        	//TODO: postDelayed
-		        }
-			}
-			return null;
-		}
-
-		
-//		@Override
-//		protected void onCancelled() {
-//			Context context = getApplicationContext();
-//			CharSequence text = "Cancelled BG-Thread";
-//			int duration = Toast.LENGTH_LONG;
-//			
-//			Toast.makeText(context, text, duration).show();
-//			
-//			((Button) findViewById(R.id.push_button)).setText("Stopped. Tap to Start!");
-//		}
-		
-		@Override
-		protected void onProgressUpdate(Integer... num_runs) {
-			Toast.makeText(getApplicationContext(),"looping! " + num_runs[0], Toast.LENGTH_SHORT).show();
-			
-//			Context context = getApplicationContext();
-//			CharSequence text = "Looped " + num_runs[0].toString() + " Times";
-//			int duration = Toast.LENGTH_SHORT;
-//
-//			Toast.makeText(context, text + "\nTimeDiff: " + timeDifference + ", RTT: " + RTT, duration).show();
-//			
-//			((Button) findViewById(R.id.push_button)).setText(text + "\nTap to Stop");
-		}
-    }
-    */
-	
+    };	
 
     private Long[] syncTime() {
     	
@@ -259,27 +174,25 @@ public class syncService extends Service  {
         long serverTime = 0;
         
         try {
-            // handler that gets string from response
-            ResponseHandler<String> stringResponseHandler = new BasicResponseHandler();
-            
-        	// get start time
+	        // handler that gets string from response
+	        ResponseHandler<String> stringResponseHandler = new BasicResponseHandler();
+	        
+	    	// get start time
 	        long ms_before = SystemClock.uptimeMillis();
 	        
-            // Execute HTTP Get Request
-            String stringResponse = httpclient.execute(request, stringResponseHandler);
-
+	        // Execute HTTP Get Request
+	        String stringResponse = httpclient.execute(request, stringResponseHandler);
+	
 	        // get current timestamp of the phone...
 	        phoneTime = System.currentTimeMillis();
 	        
-            // get end-time, calculate RTT
+	        // get end-time, calculate RTT
 	        long ms_after = SystemClock.uptimeMillis();
 	        roundTripTime = ms_after - ms_before;
 	        
-        	serverTime = Long.parseLong(stringResponse);
-            
-            return new Long[] {roundTripTime, serverTime, phoneTime};
-//        } catch (ClientProtocolException e) {
-//            	Log.e(TAG,e.toString());
+	    	serverTime = Long.parseLong(stringResponse);
+	        
+	        return new Long[] {roundTripTime, serverTime, phoneTime};
         } catch (IOException e) {
         	Log.w(TAG,e.toString());
         } catch (NumberFormatException e) {
