@@ -16,9 +16,14 @@ import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -31,6 +36,8 @@ public class syncService extends Service  {
 	private static final String TAG = "HttpSyncService";
 	private static final String DB_TABLENAME = "sync_results";
 	
+
+	private LocationManager mLocationManager;
 	
 	private final Binder binder = new LocalBinder();
 
@@ -52,16 +59,15 @@ public class syncService extends Service  {
 	public void onCreate() {
 		
 		Log.i(TAG, "onCreate called");
-		showNotification();
-		
-//        params = new BasicHttpParams();
-//        params.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
-//        
-//        httpclient = new DefaultHttpClient(params);
-//        stringResponseHandler = new BasicResponseHandler();
-		
-		// get database
+
 		db = new DatabaseHelper(this).getWritableDatabase();
+		
+		showNotification();
+
+	    mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, mMinTime, mMinDistance, mLocationListener, Looper.getMainLooper() );
+
+		
+		
 	}
 	
 
@@ -210,5 +216,30 @@ public class syncService extends Service  {
         }
 		return null;
     }
+    
+    private LocationListener mLocationListener = new LocationListener() {
+	    public synchronized void onLocationChanged(Location loc) {
+	    	long phoneTime = System.currentTimeMillis();
+	    	long gpsTime = loc.getTime();
+	    	
+	    	db.execSQL("INSERT INTO gps_results (gps, phone) VALUES (" + gpsTime + ", " + phoneTime + ");");
+	    	
+	    }
+
+		@Override
+		public void onProviderDisabled(String provider) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void onProviderEnabled(String provider) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void onStatusChanged(String provider, int status, Bundle extras) {
+			// TODO Auto-generated method stub
+		}
+    };
     
 }
