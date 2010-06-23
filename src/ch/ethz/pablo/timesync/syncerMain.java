@@ -176,7 +176,9 @@ public class syncerMain extends Activity implements OnClickListener {
 	
 	
 	
-	private class dumpCSV extends AsyncTask<Void, Void, Void> {
+	private class dumpCSV extends AsyncTask<Void, String, Void> {
+		private final static String DONE = "Finished dumping SQLite to SD Card";
+		private final static String SD_ERROR = "Could not write to SD Card";
 
 		@Override
 		protected Void doInBackground(Void... params) {
@@ -235,26 +237,23 @@ public class syncerMain extends Activity implements OnClickListener {
 					}
 					csvWriter.flush();
 					
-					
 					allData.close();
 				} catch(Exception e) {
 					Log.e(TAG, "Error while dumping SQLite to CSV: " + e.toString());
 				}
 				Log.i(TAG, "Done writing SQLite to CSV");
+				publishProgress(DONE);
 			} else {
-				Log.w(TAG, "Cannot write SQLite to CSV: SD Card not Writeable");
+				Log.w(TAG, "Cannot write SQLite to CSV: SD Card not writeable/available");
+				publishProgress(SD_ERROR);
 			}
-			
-			Log.i(TAG, "Finished doing nothing");
-			
 			return null;
 		}
 		
 		
 		@Override
-		protected void onProgressUpdate(Void... params) {
-			
-			
+		protected void onProgressUpdate(String... params) {
+			Toast.makeText(getApplicationContext(), params[0],Toast.LENGTH_LONG).show();
 		}
 		
 	}
